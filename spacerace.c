@@ -439,14 +439,14 @@ static void draw_particles() {
 
    glPushMatrix();
    
-   glScaled(1, 1, 1);
-   glTranslated(0,0,0);
+   glScaled(0.6, 0.6, 0.6);
+   glTranslated(movex,movey,movez);
 
    glColor3f(1,1,1);
    glEnable(GL_TEXTURE_2D);
    glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,mode?GL_REPLACE:GL_MODULATE);
    glEnable(GL_TEXTURE_2D);                        // Enable Texture Mapping
-   glBindTexture(GL_TEXTURE_2D,texture[2]);                // Select Our Texture
+   //glBindTexture(GL_TEXTURE_2D,texture[4]);                // Select Our Texture
 
    // initialize the particle
    for (loop=0;loop<MAX_PARTICLES;loop++) {
@@ -455,9 +455,13 @@ static void draw_particles() {
 
       particle[loop].fade = (float)(rand()%100)/1000.0f+0.003f;
 
-      particle[loop].r=colors[loop*(12/MAX_PARTICLES)][0];        // Select Red Rainbow Color
-      particle[loop].g=colors[loop*(12/MAX_PARTICLES)][1];        // Select Red Rainbow Color
-      particle[loop].b=colors[loop*(12/MAX_PARTICLES)][2];        // Select Red Rainbow Color
+      // particle[loop].r=colors[loop*(12/MAX_PARTICLES)][0];
+      // particle[loop].g=colors[loop*(12/MAX_PARTICLES)][1];
+      // particle[loop].b=colors[loop*(12/MAX_PARTICLES)][2];
+
+      particle[loop].r = 1;
+      particle[loop].g = 1;
+      particle[loop].b = 1;
 
       particle[loop].xi=(float)((rand()%50)-26.0f)*10.0f;       // Random Speed On X Axis
       particle[loop].yi=(float)((rand()%50)-25.0f)*10.0f;       // Random Speed On Y Axis
@@ -468,30 +472,37 @@ static void draw_particles() {
       particle[loop].zg=0.0f;                     // Set Pull On Z Axis To Zero
    }
 
+   // draw that sucker
    for (loop=0;loop<MAX_PARTICLES;loop++) {
       if (particle[loop].active) {
          float x=particle[loop].x;
          float y=particle[loop].y;
          float z=particle[loop].z;
 
-         glColor4f(particle[loop].r,particle[loop].g,particle[loop].b,particle[loop].life);
+         glColor4f(particle[loop].r, particle[loop].g, particle[loop].b, particle[loop].life);
 
          glBegin(GL_TRIANGLE_STRIP);  
-         glTexCoord2d(1,1); glVertex3f(x+0.5f,y+0.5f,z); // Top Right
-         glTexCoord2d(0,1); glVertex3f(x-0.5f,y+0.5f,z); // Top Left
-         glTexCoord2d(1,0); glVertex3f(x+0.5f,y-0.5f,z); // Bottom Right
-         glTexCoord2d(0,0); glVertex3f(x-0.5f,y-0.5f,z); // Bottom Left
+         glTexCoord2d(1,1); glVertex3f(x+0.06f,y+0.06f,z); // Top Right
+         glTexCoord2d(0,1); glVertex3f(x-0.06f,y+0.06f,z); // Top Left
+         glTexCoord2d(1,0); glVertex3f(x+0.06f,y-0.06f,z); // Bottom Right
+         glTexCoord2d(0,0); glVertex3f(x-0.06f,y-0.06f,z); // Bottom Left
          glEnd();
 
          particle[loop].x += particle[loop].xi / (slowdown * 1000);
          particle[loop].y += particle[loop].yi / (slowdown * 1000);
          particle[loop].z += particle[loop].zi / (slowdown * 1000);
+
+         particle[loop].xi += particle[loop].xg;
+         particle[loop].yi += particle[loop].yg;
+         particle[loop].zi += particle[loop].zg;
+
+         particle[loop].zi -= particle[loop].fade;
       }
    }
 
    glDisable(GL_TEXTURE_2D);
    glPopMatrix();
-   }
+}
 
 
 static void glowy_ball(float Glowiness[], float Diffuse[], float Specular[],
@@ -521,47 +532,6 @@ static void glowy_ball(float Glowiness[], float Diffuse[], float Specular[],
    glLightfv(light,GL_SPECULAR,Specular);
    glLightfv(light,GL_POSITION,Position);
 
-}
-
-void display() {
-   glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-   //  Enable Z-buffering in OpenGL
-   glEnable(GL_DEPTH_TEST);
-   //  Undo previous transformations
-   glLoadIdentity();
-
-   double Ex = -2*dim*Sin(th)*Cos(ph);
-   double Ey = +2*dim        *Sin(ph);
-   double Ez = +2*dim*Cos(th)*Cos(ph);
-
-   gluLookAt(Ex+movex,Ey+movey,Ez+movez, movex,movey,movez, 0,Cos(ph),0);
-
-   glShadeModel(smooth ? GL_SMOOTH : GL_FLAT);
-
-   //  Translate intensity to color vectors
-   ambient = 50;
-   float Ambient[]   = {0.01*ambient ,0.01*ambient ,0.01*ambient ,1.0};
-   float Diffuse[]   = {0.01*diffuse ,0.01*diffuse ,0.01*diffuse ,1.0};
-   float Specular[]  = {0.01*specular,0.01*specular,0.01*specular,1.0};
-
-   //draw_sky();
-
-   //  Light position
-   float Position[]  = {0,0,0,1.0};
-   // Draw light position as ball (still no lighting here)
-   glColor3f(5,5,0);
-   //glowy_ball(Ambient, Diffuse, Specular, Position, 3, GL_LIGHT0, 0, NULL);
-
-   // draw the ship
-   //int num_faces, double *vertices, double *normals, double *texs, int *faces
-   draw_obj(movex, movey, movez, num_faces_voyager, voyager_vertices, voyager_normals, voyager_texs, voyager_faces);
-   draw_particles();
-
-   //  Render the scene
-   glFlush();
-   //  Make the rendered scene visible
-   glutSwapBuffers();
-   //glDisable(GL_LIGHTING);
 }
 
 void special(int key,int x,int y) {
@@ -681,6 +651,47 @@ void idle()
    }
 }
 
+void display() {
+   glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+   //  Enable Z-buffering in OpenGL
+   glEnable(GL_DEPTH_TEST);
+   //  Undo previous transformations
+   glLoadIdentity();
+
+   double Ex = -2*dim*Sin(th)*Cos(ph);
+   double Ey = +2*dim        *Sin(ph);
+   double Ez = +2*dim*Cos(th)*Cos(ph);
+
+   gluLookAt(Ex+movex,Ey+movey,Ez+movez, movex,movey,movez, 0,Cos(ph),0);
+
+   glShadeModel(smooth ? GL_SMOOTH : GL_FLAT);
+
+   //  Translate intensity to color vectors
+   ambient = 50;
+   float Ambient[]   = {0.01*ambient ,0.01*ambient ,0.01*ambient ,1.0};
+   float Diffuse[]   = {0.01*diffuse ,0.01*diffuse ,0.01*diffuse ,1.0};
+   float Specular[]  = {0.01*specular,0.01*specular,0.01*specular,1.0};
+
+   //draw_sky();
+
+   //  Light position
+   float Position[]  = {0,0,0,1.0};
+   // Draw light position as ball (still no lighting here)
+   glColor3f(5,5,0);
+   glowy_ball(Ambient, Diffuse, Specular, Position, 3, GL_LIGHT0, 0, NULL);
+
+   // draw the ship
+   //int num_faces, double *vertices, double *normals, double *texs, int *faces
+   draw_obj(movex, movey, movez, num_faces_voyager, voyager_vertices, voyager_normals, voyager_texs, voyager_faces);
+   draw_particles();
+
+   //  Render the scene
+   glFlush();
+   //  Make the rendered scene visible
+   glutSwapBuffers();
+   //glDisable(GL_LIGHTING);
+}
+
 int main(int argc,char* argv[])
 {
    //  Initialize GLUT and process user parameters
@@ -707,6 +718,7 @@ int main(int argc,char* argv[])
    texture[1] = LoadTexBMP("metal.bmp");
    texture[2] = LoadTexBMP("turquoise.bmp");
    texture[3] = LoadTexBMP("stars.bmp");
+   texture[4] = LoadTexBMP("particle.bmp");
 
    // Load Maya objects
    //int num_vertices, int num_normals, int num_tex, int num_faces, char *filename
