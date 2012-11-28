@@ -1,6 +1,6 @@
 #include "CSCIx229.h"
 
-#define MAX_PARTICLES 1000
+#define MAX_PARTICLES 100000
 
 int th = 0;         //  Azimuth of view angle
 int ph = 0;         //  Elevation of view angle
@@ -90,14 +90,6 @@ typedef struct {
 
 // big happy fun time pile of particles
 particles particle[MAX_PARTICLES];
-
-// colors for particles
-static GLfloat colors[12][3]=               // Rainbow Of Colors
-{
-    {1.0f,0.5f,0.5f},{1.0f,0.75f,0.5f},{1.0f,1.0f,0.5f},{0.75f,1.0f,0.5f},
-    {0.5f,1.0f,0.5f},{0.5f,1.0f,0.75f},{0.5f,1.0f,1.0f},{0.5f,0.75f,1.0f},
-    {0.5f,0.5f,1.0f},{0.75f,0.5f,1.0f},{1.0f,0.5f,1.0f},{1.0f,0.5f,0.75f}
-};
 
 static void projectify()
 {
@@ -437,16 +429,33 @@ static void draw_particles() {
    glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,white);
    glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,Emission);
 
+   ambient = 50;
+   float Glowiness[]   = {0.01*ambient ,0.01*ambient ,0.01*ambient ,1.0};
+   float Diffuse[]   = {0.01*diffuse ,0.01*diffuse ,0.01*diffuse ,1.0};
+   float Specular[]  = {0.01*specular,0.01*specular,0.01*specular,1.0};
+
    glPushMatrix();
    
-   glScaled(0.6, 0.6, 0.6);
-   glTranslated(movex,movey,movez);
+   glScaled(1.5, 1.5, 1.5);
+   glTranslated(0,0,0);
 
    glColor3f(1,1,1);
    glEnable(GL_TEXTURE_2D);
    glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,mode?GL_REPLACE:GL_MODULATE);
    glEnable(GL_TEXTURE_2D);                        // Enable Texture Mapping
    //glBindTexture(GL_TEXTURE_2D,texture[4]);                // Select Our Texture
+
+    //  OpenGL should normalize normal vectors
+   glEnable(GL_NORMALIZE);
+   //  Enable lighting
+   glEnable(GL_LIGHTING);
+   //  Location of viewer for specular calculations
+   glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER,local);
+   //  glColor sets ambient and diffuse color materials
+   glColorMaterial(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE);
+   glEnable(GL_COLOR_MATERIAL);
+   //  Enable light 0
+   glEnable(light);
 
    // initialize the particle
    for (loop=0;loop<MAX_PARTICLES;loop++) {
@@ -461,14 +470,14 @@ static void draw_particles() {
 
       particle[loop].r = 1;
       particle[loop].g = 1;
-      particle[loop].b = 1;
+      particle[loop].b = 0.5;
 
       particle[loop].xi=(float)((rand()%50)-26.0f)*10.0f;       // Random Speed On X Axis
       particle[loop].yi=(float)((rand()%50)-25.0f)*10.0f;       // Random Speed On Y Axis
       particle[loop].zi=(float)((rand()%50)-25.0f)*10.0f;       // Random Speed On Z Axis
 
       particle[loop].xg=0.0f;                     // Set Horizontal Pull To Zero
-      particle[loop].yg=-0.8f;                    // Set Vertical Pull Downward
+      particle[loop].yg=0.0f;                    // Set Vertical Pull Downward
       particle[loop].zg=0.0f;                     // Set Pull On Z Axis To Zero
    }
 
@@ -482,10 +491,10 @@ static void draw_particles() {
          glColor4f(particle[loop].r, particle[loop].g, particle[loop].b, particle[loop].life);
 
          glBegin(GL_TRIANGLE_STRIP);  
-         glTexCoord2d(1,1); glVertex3f(x+0.06f,y+0.06f,z); // Top Right
-         glTexCoord2d(0,1); glVertex3f(x-0.06f,y+0.06f,z); // Top Left
-         glTexCoord2d(1,0); glVertex3f(x+0.06f,y-0.06f,z); // Bottom Right
-         glTexCoord2d(0,0); glVertex3f(x-0.06f,y-0.06f,z); // Bottom Left
+         glTexCoord2d(1,1); glVertex3f(x+0.01f,y+0.01f,z); // Top Right
+         glTexCoord2d(0,1); glVertex3f(x-0.01f,y+0.01f,z); // Top Left
+         glTexCoord2d(1,0); glVertex3f(x+0.01f,y-0.01f,z); // Bottom Right
+         glTexCoord2d(0,0); glVertex3f(x-0.01f,y-0.01f,z); // Bottom Left
          glEnd();
 
          particle[loop].x += particle[loop].xi / (slowdown * 1000);
@@ -497,6 +506,13 @@ static void draw_particles() {
          particle[loop].zi += particle[loop].zg;
 
          particle[loop].zi -= particle[loop].fade;
+
+         float Position[]  = {x,y,z,1.0};
+
+         glLightfv(light,GL_AMBIENT, Glowiness);
+         glLightfv(light,GL_DIFFUSE ,Diffuse);
+         glLightfv(light,GL_SPECULAR,Specular);
+         glLightfv(light,GL_POSITION,Position);
       }
    }
 
