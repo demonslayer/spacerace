@@ -507,6 +507,17 @@ static void draw_particles() {
 
          particle[loop].zi -= particle[loop].fade;
 
+         if (particle[loop].life < 0.0f) {
+            particle[loop].life = 1.0f;
+            particle[loop].fade = (float)(rand()%100)/1000.0f+0.003f;
+            particle[loop].x = 0.0f;
+            particle[loop].y = 0.0f;
+            particle[loop].z = 0.0f; 
+            particle[loop].xi = xspeed + (float)((rand()%60)-32.0f);
+            particle[loop].yi = yspeed + (float)((rand()%60)-32.0f);
+            particle[loop].zi = (float)((rand()%60)-32.0f);
+         }
+
          float Position[]  = {x,y,z,1.0};
 
          glLightfv(light,GL_AMBIENT, Glowiness);
