@@ -720,10 +720,7 @@ void display() {
    //  Light position
    float Position[]  = {0,0,0,1};
    // Draw light position as ball (still no lighting here)
-   glColor3f(1,1,0);
-   // glDisable(GL_DEPTH_TEST);
-
-   // sphere(0,0,0,3,texture[5]);
+   glColor3f(1,1,1);
    glowy_ball(Ambient, Diffuse, Specular, Position, 3, GL_LIGHT0, 0, NULL, texture[5]);
 
    // glDisable(GL_LIGHTING);
@@ -742,6 +739,10 @@ void display() {
    // draw the ship
    //int num_faces, double *vertices, double *normals, double *texs, int *faces
    draw_obj(movex, movey, movez, num_faces_voyager, voyager_vertices, voyager_normals, voyager_texs, voyager_faces);
+
+   glColor3f(1, 1, 1);
+   sphere(10,10,0 , 2.5, texture[0]);
+
    draw_particles();
 
    //  Render the scene
