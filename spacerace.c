@@ -437,7 +437,7 @@ static void init_particles() {
 
       particle[loop].r = 1;
       particle[loop].g = 1;
-      particle[loop].b = 0.5;
+      particle[loop].b = 0;
 
       particle[loop].xi = xspeed + (float)((rand()%60)-32.0f);
       particle[loop].yi = yspeed + (float)((rand()%60)-32.0f);
@@ -514,10 +514,16 @@ static void draw_particles() {
          particle[loop].zi += particle[loop].zg;
 
          particle[loop].life -= particle[loop].fade;
+         if (particle[loop].b < 1) {
+            particle[loop].b += 0.005;
+         }
 
          if (particle[loop].life < 0.0f) {
             particle[loop].life = 1.0f;
             particle[loop].fade = (float)(rand()%100)/1000.0f+0.003f;
+            particle[loop].r = 1;
+            particle[loop].g = 1;
+            particle[loop].b = 0;
             particle[loop].x = 0.0f;
             particle[loop].y = 0.0f;
             particle[loop].z = 0.0f; 
