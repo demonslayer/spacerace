@@ -1,6 +1,6 @@
 #include "CSCIx229.h"
 
-#define MAX_PARTICLES 100000
+#define MAX_PARTICLES 500000
 
 int th = 0;         //  Azimuth of view angle
 int ph = 0;         //  Elevation of view angle
@@ -422,28 +422,60 @@ static void draw_obj(int x, int y, int z, int num_faces, double vertices[][3], d
 //    glPopMatrix();
 // }
 
+static void init_particles() {
+      // initialize the particle
+   for (loop=0;loop<MAX_PARTICLES;loop++) {
+      particle[loop].active=1;
+      particle[loop].life=1.0f;
+
+      particle[loop].fade = (float)(rand()%100)/1000.0f+0.003f;
+      // particle[loop].fade = 1;
+
+      // particle[loop].r=colors[loop*(12/MAX_PARTICLES)][0];
+      // particle[loop].g=colors[loop*(12/MAX_PARTICLES)][1];
+      // particle[loop].b=colors[loop*(12/MAX_PARTICLES)][2];
+
+      particle[loop].r = 1;
+      particle[loop].g = 1;
+      particle[loop].b = 0.5;
+
+      particle[loop].xi = xspeed + (float)((rand()%60)-32.0f);
+      particle[loop].yi = yspeed + (float)((rand()%60)-32.0f);
+      particle[loop].zi = (float)((rand()%60)-32.0f);
+
+      particle[loop].xg=0.0f;                     // Set Horizontal Pull To Zero
+      particle[loop].yg=0.0f;                    // Set Vertical Pull Downward
+      particle[loop].zg=0.0f;                     // Set Pull On Z Axis To Zero
+   }
+}
+
 static void draw_particles() {
+
+   glShadeModel(GL_SMOOTH);                        // Enables Smooth Shading
+   glEnable(GL_BLEND);                         // Enable Blending
+   glBlendFunc(GL_SRC_ALPHA,GL_ONE);                   // Type Of Blending To Perform
+   glHint(GL_PERSPECTIVE_CORRECTION_HINT,GL_NICEST);           // Really Nice Perspective Calculations
+   glHint(GL_POINT_SMOOTH_HINT,GL_NICEST);                 // Really Nice Point Smoothing
+
    float white[] = {1,1,1,1};
    float Emission[]  = {0.0,0.0,0.01*emission,1.0};
    glMaterialfv(GL_FRONT_AND_BACK,GL_SHININESS,shinyvec);
    glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,white);
    glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,Emission);
 
-   ambient = 50;
+   ambient = 100;
    float Glowiness[]   = {0.01*ambient ,0.01*ambient ,0.01*ambient ,1.0};
    float Diffuse[]   = {0.01*diffuse ,0.01*diffuse ,0.01*diffuse ,1.0};
    float Specular[]  = {0.01*specular,0.01*specular,0.01*specular,1.0};
 
    glPushMatrix();
    
-   glScaled(1.5, 1.5, 1.5);
+   glScaled(2, 2, 2);
    glTranslated(0,0,0);
-
-   glColor3f(1,1,1);
    glEnable(GL_TEXTURE_2D);
    glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,mode?GL_REPLACE:GL_MODULATE);
    glEnable(GL_TEXTURE_2D);                        // Enable Texture Mapping
-   //glBindTexture(GL_TEXTURE_2D,texture[4]);                // Select Our Texture
+   glBindTexture(GL_TEXTURE_2D,texture[4]);                // Select Our Texture
 
     //  OpenGL should normalize normal vectors
    glEnable(GL_NORMALIZE);
@@ -457,30 +489,6 @@ static void draw_particles() {
    //  Enable light 0
    glEnable(light);
 
-   // initialize the particle
-   for (loop=0;loop<MAX_PARTICLES;loop++) {
-      particle[loop].active=1;
-      particle[loop].life=1.0f;
-
-      particle[loop].fade = (float)(rand()%100)/1000.0f+0.003f;
-
-      // particle[loop].r=colors[loop*(12/MAX_PARTICLES)][0];
-      // particle[loop].g=colors[loop*(12/MAX_PARTICLES)][1];
-      // particle[loop].b=colors[loop*(12/MAX_PARTICLES)][2];
-
-      particle[loop].r = 1;
-      particle[loop].g = 1;
-      particle[loop].b = 0.5;
-
-      particle[loop].xi=(float)((rand()%50)-26.0f)*10.0f;       // Random Speed On X Axis
-      particle[loop].yi=(float)((rand()%50)-25.0f)*10.0f;       // Random Speed On Y Axis
-      particle[loop].zi=(float)((rand()%50)-25.0f)*10.0f;       // Random Speed On Z Axis
-
-      particle[loop].xg=0.0f;                     // Set Horizontal Pull To Zero
-      particle[loop].yg=0.0f;                    // Set Vertical Pull Downward
-      particle[loop].zg=0.0f;                     // Set Pull On Z Axis To Zero
-   }
-
    // draw that sucker
    for (loop=0;loop<MAX_PARTICLES;loop++) {
       if (particle[loop].active) {
@@ -491,10 +499,10 @@ static void draw_particles() {
          glColor4f(particle[loop].r, particle[loop].g, particle[loop].b, particle[loop].life);
 
          glBegin(GL_TRIANGLE_STRIP);  
-         glTexCoord2d(1,1); glVertex3f(x+0.01f,y+0.01f,z); // Top Right
-         glTexCoord2d(0,1); glVertex3f(x-0.01f,y+0.01f,z); // Top Left
-         glTexCoord2d(1,0); glVertex3f(x+0.01f,y-0.01f,z); // Bottom Right
-         glTexCoord2d(0,0); glVertex3f(x-0.01f,y-0.01f,z); // Bottom Left
+         glTexCoord2d(1,1); glVertex3f(x+0.02f,y+0.02f,z); // Top Right
+         glTexCoord2d(0,1); glVertex3f(x-0.02f,y+0.02f,z); // Top Left
+         glTexCoord2d(1,0); glVertex3f(x+0.02f,y-0.02f,z); // Bottom Right
+         glTexCoord2d(0,0); glVertex3f(x-0.02f,y-0.02f,z); // Bottom Left
          glEnd();
 
          particle[loop].x += particle[loop].xi / (slowdown * 1000);
@@ -505,18 +513,18 @@ static void draw_particles() {
          particle[loop].yi += particle[loop].yg;
          particle[loop].zi += particle[loop].zg;
 
-         particle[loop].zi -= particle[loop].fade;
+         particle[loop].life -= particle[loop].fade;
 
-         // if (particle[loop].life < 0.0f) {
-         //    particle[loop].life = 1.0f;
-         //    particle[loop].fade = (float)(rand()%100)/1000.0f+0.003f;
-         //    particle[loop].x = 0.0f;
-         //    particle[loop].y = 0.0f;
-         //    particle[loop].z = 0.0f; 
-         //    particle[loop].xi = xspeed + (float)((rand()%60)-32.0f);
-         //    particle[loop].yi = yspeed + (float)((rand()%60)-32.0f);
-         //    particle[loop].zi = (float)((rand()%60)-32.0f);
-         // }
+         if (particle[loop].life < 0.0f) {
+            particle[loop].life = 1.0f;
+            particle[loop].fade = (float)(rand()%100)/1000.0f+0.003f;
+            particle[loop].x = 0.0f;
+            particle[loop].y = 0.0f;
+            particle[loop].z = 0.0f; 
+            particle[loop].xi = xspeed + (float)((rand()%60)-32.0f);
+            particle[loop].yi = yspeed + (float)((rand()%60)-32.0f);
+            particle[loop].zi = (float)((rand()%60)-32.0f);
+         }
 
          float Position[]  = {x,y,z,1.0};
 
@@ -528,14 +536,15 @@ static void draw_particles() {
    }
 
    glDisable(GL_TEXTURE_2D);
+   glDisable(GL_BLEND);  
    glPopMatrix();
 }
 
 
 static void glowy_ball(float Glowiness[], float Diffuse[], float Specular[],
-   float Position[], float radius, int light, int mode, float direction[]) {
+   float Position[], float radius, int light, int mode, float direction[], int tex) {
 
-   sphere(Position[0],Position[1],Position[2] , radius, 0);
+   sphere(Position[0],Position[1],Position[2] , radius, tex);
    //  OpenGL should normalize normal vectors
    glEnable(GL_NORMALIZE);
    //  Enable lighting
@@ -689,7 +698,8 @@ void display() {
    double Ey = +2*dim        *Sin(ph);
    double Ez = +2*dim*Cos(th)*Cos(ph);
 
-   gluLookAt(Ex+movex,Ey+movey,Ez+movez, movex,movey,movez, 0,Cos(ph),0);
+   gluLookAt(Ex+movex+1,Ey+movey+1,Ez+movez+1, movex,movey,movez, 0,Cos(ph),0);
+   // gluLookAt(Ex,Ey,Ez, 0,0,0, 0,Cos(ph),0);
 
    glShadeModel(smooth ? GL_SMOOTH : GL_FLAT);
 
@@ -702,10 +712,26 @@ void display() {
    //draw_sky();
 
    //  Light position
-   float Position[]  = {0,0,0,1.0};
+   float Position[]  = {0,0,0,1};
    // Draw light position as ball (still no lighting here)
-   glColor3f(5,5,0);
-   glowy_ball(Ambient, Diffuse, Specular, Position, 3, GL_LIGHT0, 0, NULL);
+   glColor3f(1,1,0);
+   // glDisable(GL_DEPTH_TEST);
+
+   // sphere(0,0,0,3,texture[5]);
+   glowy_ball(Ambient, Diffuse, Specular, Position, 3, GL_LIGHT0, 0, NULL, texture[5]);
+
+   // glDisable(GL_LIGHTING);
+   // glShadeModel(GL_SMOOTH);                        // Enables Smooth Shading
+   // glEnable(GL_BLEND);                         // Enable Blending
+   // glBlendFunc(GL_SRC_ALPHA,GL_ONE);                   // Type Of Blending To Perform
+   // glHint(GL_PERSPECTIVE_CORRECTION_HINT,GL_NICEST);           // Really Nice Perspective Calculations
+   // glHint(GL_POINT_SMOOTH_HINT,GL_NICEST); 
+   // glColor4f(1,1,0.5,0.5);
+   // // glowy_ball(Ambient, Diffuse, Specular, Position, 4, GL_LIGHT0, 0, NULL);
+   // sphere(0,0,0,4,0);
+   // glDisable(GL_BLEND);
+   // // glEnable(GL_DEPTH_TEST);
+   // glEnable(GL_LIGHTING);
 
    // draw the ship
    //int num_faces, double *vertices, double *normals, double *texs, int *faces
@@ -746,11 +772,14 @@ int main(int argc,char* argv[])
    texture[2] = LoadTexBMP("turquoise.bmp");
    texture[3] = LoadTexBMP("stars.bmp");
    texture[4] = LoadTexBMP("particle.bmp");
+   texture[5] = LoadTexBMP("zekador.bmp");
 
    // Load Maya objects
    //int num_vertices, int num_normals, int num_tex, int num_faces, char *filename
    // double *vertices, double *normals, double *texs, int *faces
    load_obj(num_vertices_voyager, num_normals_voyager, num_tex_voyager, num_faces_voyager, "voyagereng.obj", voyager_vertices, voyager_normals, voyager_texs, voyager_faces);
+
+   init_particles();
    //  Pass control to GLUT so it can interact with the user
    glutMainLoop();
    return 0;
