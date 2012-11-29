@@ -1,6 +1,6 @@
 #include "CSCIx229.h"
 
-#define MAX_PARTICLES 500000
+#define MAX_SUN_PARTICLES 500000
 
 int th = 0;         //  Azimuth of view angle
 int ph = 0;         //  Elevation of view angle
@@ -57,11 +57,10 @@ double voyager_texs[num_tex_voyager][2];
 int voyager_faces[num_faces_voyager][4][3];
 
 // for particle happy fun time
-int rainbow = 1;
-float slowdown = 2.0f;
-float xspeed;
-float yspeed;
-float zoom = -40.0f;
+float sun_slowdown = 2.0f;
+float sun_xspeed;
+float sun_yspeed;
+
 unsigned int loop;
 unsigned int col;
 unsigned int delay;
@@ -89,7 +88,7 @@ typedef struct {
 } particles;
 
 // big happy fun time pile of particles
-particles particle[MAX_PARTICLES];
+particles sun_particle[MAX_SUN_PARTICLES];
 
 static void projectify()
 {
@@ -422,22 +421,22 @@ static void draw_obj(int x, int y, int z, int num_faces, double vertices[][3], d
 //    glPopMatrix();
 // }
 
-static void init_particles() {
+static void init_particles(particles particle[], int max, float slowdown, float xspeed, float yspeed, float red, float green, float blue) {
       // initialize the particle
-   for (loop=0;loop<MAX_PARTICLES;loop++) {
+   for (loop=0; loop < max; loop++) {
       particle[loop].active=1;
       particle[loop].life=1.0f;
 
       particle[loop].fade = (float)(rand()%100)/1000.0f+0.003f;
       // particle[loop].fade = 1;
 
-      // particle[loop].r=colors[loop*(12/MAX_PARTICLES)][0];
-      // particle[loop].g=colors[loop*(12/MAX_PARTICLES)][1];
-      // particle[loop].b=colors[loop*(12/MAX_PARTICLES)][2];
+      // particle[loop].r=colors[loop*(12/MAX_SUN_PARTICLES)][0];
+      // particle[loop].g=colors[loop*(12/MAX_SUN_PARTICLES)][1];
+      // particle[loop].b=colors[loop*(12/MAX_SUN_PARTICLES)][2];
 
-      particle[loop].r = 1;
-      particle[loop].g = 1;
-      particle[loop].b = 0;
+      particle[loop].r = red;
+      particle[loop].g = green;
+      particle[loop].b = blue;
 
       particle[loop].xi = xspeed + (float)((rand()%60)-32.0f);
       particle[loop].yi = yspeed + (float)((rand()%60)-32.0f);
@@ -449,7 +448,7 @@ static void init_particles() {
    }
 }
 
-static void draw_particles() {
+static void draw_particles(particles particle[], int max, float slowdown, float xspeed, float yspeed) {
 
    glShadeModel(GL_SMOOTH);                        // Enables Smooth Shading
    glEnable(GL_BLEND);                         // Enable Blending
@@ -490,7 +489,7 @@ static void draw_particles() {
    glEnable(light);
 
    // draw that sucker
-   for (loop=0;loop<MAX_PARTICLES;loop++) {
+   for (loop=0; loop < max; loop++) {
       if (particle[loop].active) {
          float x=particle[loop].x;
          float y=particle[loop].y;
@@ -743,7 +742,7 @@ void display() {
    glColor3f(1, 1, 1);
    sphere(10,10,0 , 2.5, texture[0]);
 
-   draw_particles();
+   draw_particles(sun_particle, MAX_SUN_PARTICLES, sun_slowdown, sun_xspeed, sun_yspeed);
 
    //  Render the scene
    glFlush();
@@ -786,7 +785,7 @@ int main(int argc,char* argv[])
    // double *vertices, double *normals, double *texs, int *faces
    load_obj(num_vertices_voyager, num_normals_voyager, num_tex_voyager, num_faces_voyager, "voyagereng.obj", voyager_vertices, voyager_normals, voyager_texs, voyager_faces);
 
-   init_particles();
+   init_particles(sun_particle, MAX_SUN_PARTICLES, sun_slowdown, sun_xspeed, sun_yspeed, 1, 1, 0);
    //  Pass control to GLUT so it can interact with the user
    glutMainLoop();
    return 0;
