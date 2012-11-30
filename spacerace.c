@@ -63,8 +63,8 @@ float atm_slowdown = 5.0f;
 
 float sun_xspeed = 1.0f;
 float sun_yspeed = 1.0f;
-float atm_xspeed = 5.0f;
-float atm_yspeed = 5.0f;
+float atm_xspeed = 1.0f;
+float atm_yspeed = 1.0f;
 
 unsigned int loop;
 unsigned int col;
@@ -450,7 +450,7 @@ static void init_particles(particles particle[], int max, float slowdown, float 
 }
 
 static void draw_particles(particles particle[], int max, float slowdown, float xspeed, float yspeed, int x, int y, int z,
-   int r, int g, int b, float life) {
+   int r, int g, int b, float life, float scale) {
 
    glShadeModel(GL_SMOOTH);                        // Enables Smooth Shading
    glEnable(GL_BLEND);                         // Enable Blending
@@ -471,9 +471,8 @@ static void draw_particles(particles particle[], int max, float slowdown, float 
 
    glPushMatrix();
    
-   glScaled(2, 2, 2);
+   glScaled(scale, scale, scale);
    glTranslated(x,y,z);
-   glEnable(GL_TEXTURE_2D);
    glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,mode?GL_REPLACE:GL_MODULATE);
    glEnable(GL_TEXTURE_2D);                        // Enable Texture Mapping
    glBindTexture(GL_TEXTURE_2D,texture[4]);                // Select Our Texture
@@ -750,10 +749,10 @@ void display() {
    draw_obj(movex, movey, movez, num_faces_voyager, voyager_vertices, voyager_normals, voyager_texs, voyager_faces);
 
    glColor3f(1, 1, 1);
-   sphere(10,10,0 , 2.5, texture[0]);
+   sphere(10,10,0 , 2, texture[0]);
 
-   draw_particles(sun_particle, MAX_SUN_PARTICLES, sun_slowdown, sun_xspeed, sun_yspeed, 0, 0, 0, 1, 1, 0, 1.0);
-   draw_particles(znorl_particle, MAX_ATM_PARTICLES, atm_slowdown, atm_xspeed, atm_yspeed, 5, 5, 0, 1, 1, 1, 0.8);
+   draw_particles(sun_particle, MAX_SUN_PARTICLES, sun_slowdown, sun_xspeed, sun_yspeed, 0, 0, 0, 1, 1, 0, 1.0, 2);
+   draw_particles(znorl_particle, MAX_ATM_PARTICLES, atm_slowdown, atm_xspeed, atm_yspeed, 5, 5, 0, 0.5, 0.5, 1, 0.8, 2);
 
    //  Render the scene
    glFlush();
@@ -797,7 +796,7 @@ int main(int argc,char* argv[])
    load_obj(num_vertices_voyager, num_normals_voyager, num_tex_voyager, num_faces_voyager, "voyagereng.obj", voyager_vertices, voyager_normals, voyager_texs, voyager_faces);
 
    init_particles(sun_particle, MAX_SUN_PARTICLES, sun_slowdown, sun_xspeed, sun_yspeed, 1, 1, 0, 1.0);
-   init_particles(znorl_particle, MAX_ATM_PARTICLES, atm_slowdown, atm_xspeed, atm_yspeed, 1, 1, 1, 0.8);
+   init_particles(znorl_particle, MAX_ATM_PARTICLES, atm_slowdown, atm_xspeed, atm_yspeed, 1, 1, 1, 1.0);
    //  Pass control to GLUT so it can interact with the user
    glutMainLoop();
    return 0;
