@@ -445,6 +445,7 @@ static void cube(double x,double y,double z,
    glEnd();
    //  Undo transformations and textures
    glPopMatrix();
+   glDisable(GL_BLEND);
    glDisable(GL_TEXTURE_2D);
 }
 
@@ -453,21 +454,33 @@ static void init_particles(particles particle[], int max, float slowdown, float 
       // initialize the particle
    for (loop=0; loop < max; loop++) {
       particle[loop].active=1;
-      particle[loop].life=life;
+      // particle[loop].life=life;
 
-      particle[loop].fade = (float)(rand()%100)/1000.0f+0.003f;
+      // particle[loop].fade = (float)(rand()%100)/1000.0f+0.003f;
 
-      particle[loop].r = red;
-      particle[loop].g = green;
-      particle[loop].b = blue;
+      // particle[loop].r = red;
+      // particle[loop].g = green;
+      // particle[loop].b = blue;
 
-      particle[loop].xi = xspeed + (float)((rand()%60)-32.0f);
-      particle[loop].yi = yspeed + (float)((rand()%60)-32.0f);
-      particle[loop].zi = (float)((rand()%60)-32.0f);
+      // particle[loop].xi = xspeed + (float)((rand()%60)-32.0f);
+      // particle[loop].yi = yspeed + (float)((rand()%60)-32.0f);
+      // particle[loop].zi = (float)((rand()%60)-32.0f);
 
       particle[loop].xg=0.0f;                     // Set Horizontal Pull To Zero
       particle[loop].yg=0.0f;                    // Set Vertical Pull Downward
       particle[loop].zg=0.0f;                     // Set Pull On Z Axis To Zero
+      
+      particle[loop].life = life;
+      particle[loop].fade = (float)(rand()%100)/1000.0f+0.003f;
+      particle[loop].r = red;
+      particle[loop].g = green;
+      particle[loop].b = blue;
+      particle[loop].x = 0.0f;
+      particle[loop].y = 0.0f;
+      particle[loop].z = 0.0f; 
+      particle[loop].xi = xspeed + (float)((rand()%60)-32.0f);
+      particle[loop].yi = yspeed + (float)((rand()%60)-32.0f);
+      particle[loop].zi = (float)((rand()%60)-32.0f);
    }
 }
 
@@ -604,6 +617,24 @@ static void glowy_ball(float Glowiness[], float Diffuse[], float Specular[],
    glLightfv(light,GL_SPECULAR,Specular);
    glLightfv(light,GL_POSITION,Position);
 
+}
+
+void draw_atmosphere(float x, float y, float z, float scale, float r, float g, float b) {
+   float Position[]  = {x,y,z,1};
+   ambient = 50;
+   float Ambient[]   = {0.01*ambient ,0.01*ambient ,0.01*ambient ,1.0};
+   float Diffuse[]   = {0.01*diffuse ,0.01*diffuse ,0.01*diffuse ,1.0};
+   float Specular[]  = {0.01*specular,0.01*specular,0.01*specular,1.0};
+
+   glShadeModel(GL_SMOOTH);
+   glEnable(GL_BLEND);                
+   glBlendFunc(GL_SRC_ALPHA,GL_ONE);                   
+   glHint(GL_PERSPECTIVE_CORRECTION_HINT,GL_NICEST);           
+   glHint(GL_POINT_SMOOTH_HINT,GL_NICEST); 
+   glColor4f(r,g,b,0.2);
+   glowy_ball(Ambient, Diffuse, Specular, Position, scale, GL_LIGHT0, 0, NULL, texture[4]);
+   glDisable(GL_BLEND);
+   glEnable(GL_DEPTH_TEST);
 }
 
 void special(int key,int x,int y) {
@@ -753,19 +784,6 @@ void display() {
    glColor3f(1,1,1);
    glowy_ball(Ambient, Diffuse, Specular, Position, 3, GL_LIGHT0, 0, NULL, texture[5]);
 
-   // glDisable(GL_LIGHTING);
-   // glShadeModel(GL_SMOOTH);                        // Enables Smooth Shading
-   // glEnable(GL_BLEND);                         // Enable Blending
-   // glBlendFunc(GL_SRC_ALPHA,GL_ONE);                   // Type Of Blending To Perform
-   // glHint(GL_PERSPECTIVE_CORRECTION_HINT,GL_NICEST);           // Really Nice Perspective Calculations
-   // glHint(GL_POINT_SMOOTH_HINT,GL_NICEST); 
-   // glColor4f(1,1,0.5,0.5);
-   // // glowy_ball(Ambient, Diffuse, Specular, Position, 4, GL_LIGHT0, 0, NULL);
-   // sphere(0,0,0,4,0);
-   // glDisable(GL_BLEND);
-   // // glEnable(GL_DEPTH_TEST);
-   // glEnable(GL_LIGHTING);
-
    // draw the ship
    //int num_faces, double *vertices, double *normals, double *texs, int *faces
    draw_obj(movex, movey, movez, num_faces_voyager, voyager_vertices, voyager_normals, voyager_texs, voyager_faces);
@@ -773,7 +791,10 @@ void display() {
    glColor3f(1, 1, 1);
    sphere(10,10,0 , 2, texture[0]);
 
-   cube(Ex + movex, Ey + movey,  Ez + movez, 10);
+   cube(Ex + movex, Ey + movey,  Ez + movez, 12);
+
+   draw_atmosphere(0, 0, 0, 4, 1, 1, 0.5);
+   draw_atmosphere(10, 10, 0, 3, 0.5, 0.5, 1);
 
    draw_particles(sun_particle, MAX_SUN_PARTICLES, sun_slowdown, sun_xspeed, sun_yspeed, 0, 0, 0, 1, 1, 0, 1.0, 2);
    draw_particles(znorl_particle, MAX_ATM_PARTICLES, atm_slowdown, atm_xspeed, atm_yspeed, 5, 5, 0, 0.5, 0.5, 1, 0.8, 2);
