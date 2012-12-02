@@ -371,61 +371,83 @@ static void draw_obj(int x, int y, int z, int num_faces, double vertices[][3], d
    glPopMatrix();
 }
 
-// static void draw_sky() {
-//    float white[] = {1,1,1,1};
-//    float Emission[]  = {0.0,0.0,0.01*emission,1.0};
-//    glMaterialfv(GL_FRONT_AND_BACK,GL_SHININESS,shinyvec);
-//    glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,white);
-//    glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,Emission);
-   
-//    glScaled(0.6, 0.6, 0.6);
-//    glTranslated(0,0,0);
+static void cube(double x,double y,double z,
+                 double scale) {
+   glShadeModel(GL_SMOOTH);                        // Enables Smooth Shading
+   glEnable(GL_BLEND);                         // Enable Blending
+   glBlendFunc(GL_SRC_ALPHA,GL_ONE);                   // Type Of Blending To Perform
+   glHint(GL_PERSPECTIVE_CORRECTION_HINT,GL_NICEST);           // Really Nice Perspective Calculations
+   glHint(GL_POINT_SMOOTH_HINT,GL_NICEST);                 // Really Nice Point Smoothing
 
-//    glColor3f(1,1,1);
-//    glEnable(GL_TEXTURE_2D);
-//    glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,mode?GL_REPLACE:GL_MODULATE);
+   //  Set specular color to white
+   float white[] = {1,1,1,1};
+   float Emission[]  = {0.0,0.0,0.01*emission,1.0};
+   glMaterialfv(GL_FRONT_AND_BACK,GL_SHININESS,shinyvec);
+   glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,white);
+   glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,Emission);
+   //  Save transformation
+   glPushMatrix();
+   //  Offset, scale and rotate
+   glTranslated(x,y,z);
+   glScaled(scale, scale, scale);
+   //  Enable textures
+   glEnable(GL_TEXTURE_2D);
+   glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,mode?GL_REPLACE:GL_MODULATE);
+   glColor3f(1,1,1);
+   glBindTexture(GL_TEXTURE_2D,texture[3]);
+   //  Front
+   glBegin(GL_QUADS);
+   glNormal3f( 0, 0, 1);
+   glTexCoord2f(0,0); glVertex3f(-1,-1, 1);
+   glTexCoord2f(1,0); glVertex3f(+1,-1, 1);
+   glTexCoord2f(1,1); glVertex3f(+1,+1, 1);
+   glTexCoord2f(0,1); glVertex3f(-1,+1, 1);
+   glEnd();
+   //  Back
+   glBegin(GL_QUADS);
+   glNormal3f( 0, 0,-1);
+   glTexCoord2f(0,0); glVertex3f(+1,-1,-1);
+   glTexCoord2f(1,0); glVertex3f(-1,-1,-1);
+   glTexCoord2f(1,1); glVertex3f(-1,+1,-1);
+   glTexCoord2f(0,1); glVertex3f(+1,+1,-1);
+   glEnd();
+   //  Right
+   glBegin(GL_QUADS);
+   glNormal3f(+1, 0, 0);
+   glTexCoord2f(0,0); glVertex3f(+1,-1,+1);
+   glTexCoord2f(1,0); glVertex3f(+1,-1,-1);
+   glTexCoord2f(1,1); glVertex3f(+1,+1,-1);
+   glTexCoord2f(0,1); glVertex3f(+1,+1,+1);
+   glEnd();
+   //  Left
+   glBegin(GL_QUADS);
+   glNormal3f(-1, 0, 0);
+   glTexCoord2f(0,0); glVertex3f(-1,-1,-1);
+   glTexCoord2f(1,0); glVertex3f(-1,-1,+1);
+   glTexCoord2f(1,1); glVertex3f(-1,+1,+1);
+   glTexCoord2f(0,1); glVertex3f(-1,+1,-1);
+   glEnd();
+   //  Top
+   glBegin(GL_QUADS);
+   glNormal3f( 0,+1, 0);
+   glTexCoord2f(0,0); glVertex3f(-1,+1,+1);
+   glTexCoord2f(1,0); glVertex3f(+1,+1,+1);
+   glTexCoord2f(1,1); glVertex3f(+1,+1,-1);
+   glTexCoord2f(0,1); glVertex3f(-1,+1,-1);
+   glEnd();
+   //  Bottom
+   glBegin(GL_QUADS);
+   glNormal3f( 0,-1, 0);
+   glTexCoord2f(0,0); glVertex3f(-1,-1,-1);
+   glTexCoord2f(1,0); glVertex3f(+1,-1,-1);
+   glTexCoord2f(1,1); glVertex3f(+1,-1,+1);
+   glTexCoord2f(0,1); glVertex3f(-1,-1,+1);
+   glEnd();
+   //  Undo transformations and textures
+   glPopMatrix();
+   glDisable(GL_TEXTURE_2D);
+}
 
-//    glBindTexture(GL_TEXTURE_2D,4);
-
-//    // do things
-//    glBegin(GL_QUADS);
-//    //  Front
-//    glTexCoord3d(-1, -1, 1); glVertex3f(-20,-20, 20); 
-//    glTexCoord3d(1, -1, 1); glVertex3f(+20,-20, 20); 
-//    glTexCoord3d(1, 1, 1); glVertex3f(+20,+20, 20);
-//    glTexCoord3d(-1, 1, 1); glVertex3f(-20,+20, 20); 
-//    //  Back
-//    glTexCoord3d(1, -1, -1); glVertex3f(+20,-20,-20); 
-//    glTexCoord3d(-1, -1, -1); glVertex3f(-20,-20,-20); 
-//    glTexCoord3d(-1, 1, -1); glVertex3f(-20,+20,-20); 
-//    glTexCoord3d(1, 1, -1); glVertex3f(+20,+20,-20); 
-//    //  Right
-//    glTexCoord3d(1, -1, 1); glVertex3f(+20,-20,+20); 
-//    glTexCoord3d(1, -1, -1); glVertex3f(+20,-20,-20); 
-//    glTexCoord3d(1, 1, -1); glVertex3f(+20,+20,-20); 
-//    glTexCoord3d(1, 1, 1); glVertex3f(+20,+20,+20); 
-//    //  Left
-//    glTexCoord3d(-1, -1, -1); glVertex3f(-20,-20,-20); 
-//    glTexCoord3d(-1, -1, 1); glVertex3f(-20,-20,+20); 
-//    glTexCoord3d(-1, 1, 1); glVertex3f(-20,+20,+20); 
-//    glTexCoord3d(-1, 1, -1); glVertex3f(-20,+20,-20); 
-//    //  Top
-//    glTexCoord3d(-1, 1, 1); glVertex3f(-20,+20,+20); 
-//    glTexCoord3d(1, 1, 1); glVertex3f(+20,+20,+20); 
-//    glTexCoord3d(1, 1, -1); glVertex3f(+20,+20,-20); 
-//    glTexCoord3d(-1, 1, -1); glVertex3f(-20,+20,-20); 
-//    //  Bottom
-//    glTexCoord3d(-1, -1, -1); glVertex3f(-20,-20,-20); 
-//    glTexCoord3d(1, -1, -1); glVertex3f(+20,-20,-20); 
-//    glTexCoord3d(1, -1, 1); glVertex3f(+20,-20,+20); 
-//    glTexCoord3d(-1, -1, 1); glVertex3f(-20,-20,+20); 
-//    //  End
-//    glEnd();
-
-
-//    glDisable(GL_TEXTURE_2D);
-//    glPopMatrix();
-// }
 
 static void init_particles(particles particle[], int max, float slowdown, float xspeed, float yspeed, float red, float green, float blue, float life) {
       // initialize the particle
@@ -750,6 +772,8 @@ void display() {
 
    glColor3f(1, 1, 1);
    sphere(10,10,0 , 2, texture[0]);
+
+   cube(Ex + movex, Ey + movey,  Ez + movez, 10);
 
    draw_particles(sun_particle, MAX_SUN_PARTICLES, sun_slowdown, sun_xspeed, sun_yspeed, 0, 0, 0, 1, 1, 0, 1.0, 2);
    draw_particles(znorl_particle, MAX_ATM_PARTICLES, atm_slowdown, atm_xspeed, atm_yspeed, 5, 5, 0, 0.5, 0.5, 1, 0.8, 2);
