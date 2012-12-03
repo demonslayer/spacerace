@@ -840,8 +840,8 @@ int main(int argc,char* argv[])
    // double *vertices, double *normals, double *texs, int *faces
    load_obj(num_vertices_voyager, num_normals_voyager, num_tex_voyager, num_faces_voyager, "voyagereng.obj", voyager_vertices, voyager_normals, voyager_texs, voyager_faces);
 
-   init_particles(sun_particle, MAX_SUN_PARTICLES, sun_slowdown, sun_xspeed, sun_yspeed, 1, 1, 0, 1.0);
-   init_particles(znorl_particle, MAX_ATM_PARTICLES, atm_slowdown, atm_xspeed, atm_yspeed, 1, 1, 1, 1.0);
+   init_particles(sun_particle, MAX_SUN_PARTICLES, 0.01, 10, 10, 1, 1, 0, 1.0);
+   init_particles(znorl_particle, MAX_ATM_PARTICLES, 0.01, 10, 10, 1, 1, 1, 1.0);
    //  Pass control to GLUT so it can interact with the user
    glutMainLoop();
    return 0;
