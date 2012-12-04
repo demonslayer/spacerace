@@ -43,7 +43,7 @@ float shinyvec[1];    // Shininess (value)
 int zh        =  90;  // Light azimuth
 float ylight  =   0;  // Elevation of light
 int mode=0;       //  Texture mode
-unsigned int texture[7]; // Texture names
+unsigned int texture[12]; // Texture names
 
 // sizes of maya objects
 #define num_vertices_voyager (1090)
@@ -782,19 +782,21 @@ void display() {
    float Position[]  = {0,0,0,1};
    // Draw light position as ball (still no lighting here)
    glColor3f(1,1,1);
-   glowy_ball(Ambient, Diffuse, Specular, Position, 3, GL_LIGHT0, 0, NULL, texture[5]);
+   glowy_ball(Ambient, Diffuse, Specular, Position, 4, GL_LIGHT0, 0, NULL, texture[5]);
 
    // draw the ship
    //int num_faces, double *vertices, double *normals, double *texs, int *faces
    draw_obj(movex, movey, movez, num_faces_voyager, voyager_vertices, voyager_normals, voyager_texs, voyager_faces);
 
    glColor3f(1, 1, 1);
-   sphere(10,10,0 , 2, texture[0]);
+   sphere(10,10,0 , 2, texture[6]);
+   sphere(-10,10,0 , 3, texture[8]);
 
    cube(Ex + movex, Ey + movey,  Ez + movez, 12);
 
-   draw_atmosphere(0, 0, 0, 4, 1, 1, 0.5);
-   draw_atmosphere(10, 10, 0, 3, 0.5, 0.5, 1);
+   draw_atmosphere(0, 0, 0, 5, 1, 1, 0.5);
+   draw_atmosphere(10, 10, 0, 3, 1, 1, 1);
+   draw_atmosphere(-10, 10, 0, 4, 1, 0.6, 0.8);
 
    draw_particles(sun_particle, MAX_SUN_PARTICLES, sun_slowdown, sun_xspeed, sun_yspeed, 0, 0, 0, 1, 1, 0, 1.0, 2);
    draw_particles(znorl_particle, MAX_ATM_PARTICLES, atm_slowdown, atm_xspeed, atm_yspeed, 5, 5, 0, 0.5, 0.5, 1, 0.8, 2);
@@ -834,6 +836,9 @@ int main(int argc,char* argv[])
    texture[3] = LoadTexBMP("stars.bmp");
    texture[4] = LoadTexBMP("particle.bmp");
    texture[5] = LoadTexBMP("zekador.bmp");
+   texture[6] = LoadTexBMP("ishthar.bmp");
+   texture[7] = LoadTexBMP("nesk.bmp");
+   texture[8] = LoadTexBMP("centura.bmp");
 
    // Load Maya objects
    //int num_vertices, int num_normals, int num_tex, int num_faces, char *filename
