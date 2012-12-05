@@ -5,6 +5,7 @@
 
 int th = 0;         //  Azimuth of view angle
 int ph = 0;         //  Elevation of view angle
+float orbrotate = 0;
 int xdist = 0;
 int ydist = 12;
 int zdist = 0;
@@ -143,6 +144,14 @@ static void sphere(double x,double y,double z,double r, unsigned int tex)
    //  Offset and scale
    glTranslated(x,y,z);
    glScaled(r,r,r);
+   glRotatef(270, 1, 0, 0);
+   // glPopMatrix();
+   // glPushMatrix();
+   glRotatef(orbrotate, 0, 0, 1);
+   orbrotate += 0.1;
+   if (orbrotate >= 360) {
+      orbrotate = 0;
+   }
 
    if (tex) {
       glEnable(GL_TEXTURE_2D);
