@@ -5,6 +5,9 @@
 
 int th = 0;         //  Azimuth of view angle
 int ph = 0;         //  Elevation of view angle
+int xdist = 0;
+int ydist = 12;
+int zdist = 0;
 // int zh = 0;
 int fov=55;       //  Field of view (for perspective)
 int light = 1;
@@ -14,7 +17,7 @@ double asp=1;     //  Aspect ratio
 int projection = 1;     // 0 for ortho, 1 for perspective
 int animation = 1;      // whether or not the sun animates
 
-double dim=5.0;   //  Size of world
+double dim=15;   //  Size of world
 
 // Just some helpful little constants for perspective
 int ORTHO = 0;
@@ -714,6 +717,12 @@ void key(unsigned char ch,int x,int y) {
       } else {
          animation = 0;
       }
+   } else if (ch == '+') {
+      if (ydist > 0) {
+         ydist--;
+      }
+   } else if (ch == '-') {
+      ydist++;
    }
 
    //  Keep angles to +/-360 degrees
@@ -766,7 +775,7 @@ void display() {
    double Ey = +2*dim        *Sin(ph);
    double Ez = +2*dim*Cos(th)*Cos(ph);
 
-   gluLookAt(Ex,Ey+12,Ez, 0,0,0, 0,Cos(ph),0);
+   gluLookAt(Ex+xdist,Ey+ydist,Ez+zdist, 0,0,0, 0,Cos(ph),0);
    // gluLookAt(Ex,Ey,Ez, 0,0,0, 0,Cos(ph),0);
 
    glShadeModel(smooth ? GL_SMOOTH : GL_FLAT);
@@ -783,24 +792,46 @@ void display() {
    float Position[]  = {movex,movey,movez,1};
    // Draw light position as ball (still no lighting here)
    glColor3f(1,1,1);
-   glowy_ball(Ambient, Diffuse, Specular, Position, 4, GL_LIGHT0, 0, NULL, texture[5]);
+   glowy_ball(Ambient, Diffuse, Specular, Position, 10, GL_LIGHT0, 0, NULL, texture[5]);
 
    // draw the ship
    //int num_faces, double *vertices, double *normals, double *texs, int *faces
    draw_obj(0, 0, 0, num_faces_voyager, voyager_vertices, voyager_normals, voyager_texs, voyager_faces);
 
    glColor3f(1, 1, 1);
-   sphere(movex+10,movey+10,movez , 2, texture[6]);
-   sphere(movex-10,movey+10,movez , 3, texture[8]);
+   sphere(movex+10,movey,movez+10 , 2, texture[6]);
+   sphere(movex-12,movey,movez+12 , 3, texture[8]);
+   sphere(movex-3,movey,movez+16 , 3, texture[7]);
+   sphere(movex+7,movey,movez-18 , 3, texture[0]);
+   sphere(movex-8,movey,movez-24 , 6, texture[9]);
+   sphere(movex-28,movey,movez , 6, texture[10]);
+   sphere(movex+34,movey,movez + 1 , 6, texture[11]);
 
-   cube(Ex, Ey+12,  Ez, 12);
+   cube(Ex+xdist, Ey+ydist,  Ez+zdist, 20);
 
-   draw_atmosphere(movex, movey, movez, 5, 1, 1, 0.5);
-   draw_atmosphere(movex+10, movey+10, movez, 3, 1, 1, 1);
-   draw_atmosphere(movex-10, movey+10, movez, 4, 1, 0.6, 0.8);
+   glShadeModel(GL_SMOOTH);
+   glEnable(GL_BLEND);                
+   glBlendFunc(GL_SRC_ALPHA,GL_ONE);                   
+   glHint(GL_PERSPECTIVE_CORRECTION_HINT,GL_NICEST);           
+   glHint(GL_POINT_SMOOTH_HINT,GL_NICEST); 
+   glColor4f(1, 1, 1,0.2);
+   sphere(movex-8,movey,movez-24 , 7.5, texture[9]);
+   sphere(movex-28,movey,movez , 7.5, texture[10]);
+   sphere(movex+34,movey,movez + 1 , 7.5, texture[11]);
+   glDisable(GL_BLEND);
+   glEnable(GL_DEPTH_TEST);
+
+   draw_atmosphere(movex, movey, movez, 11, 1, 1, 0.5);
+   draw_atmosphere(movex+10, movey, movez+10, 3, 1, 1, 1);
+   draw_atmosphere(movex-12, movey, movez+12, 4, 1, 0.6, 0.8);
+   draw_atmosphere(movex-3, movey, movez+16, 4, 0.5, 0.5, 1);
+   draw_atmosphere(movex+7, movey, movez-18, 4, 0.5, 0.5, 1);
+   draw_atmosphere(movex-8, movey, movez-24, 9, 1, 1, 0);
+   draw_atmosphere(movex-28, movey, movez, 9, 0.5, 0.5, 0.5);
+   draw_atmosphere(movex+34, movey, movez, 9, 0, 1, 1);
 
    draw_particles(sun_particle, MAX_SUN_PARTICLES, sun_slowdown, sun_xspeed, sun_yspeed, movex, movey, movez, 1, 1, 0, 1.0, 2);
-   draw_particles(znorl_particle, MAX_ATM_PARTICLES, atm_slowdown, atm_xspeed, atm_yspeed, movex+5, movey+5, movez, 0.5, 0.5, 1, 0.8, 2);
+   // draw_particles(znorl_particle, MAX_ATM_PARTICLES, atm_slowdown, atm_xspeed, atm_yspeed, movex+5, movey+5, movez, 0.5, 0.5, 1, 0.8, 2);
 
    //  Render the scene
    glFlush();
@@ -840,6 +871,9 @@ int main(int argc,char* argv[])
    texture[6] = LoadTexBMP("ishthar.bmp");
    texture[7] = LoadTexBMP("nesk.bmp");
    texture[8] = LoadTexBMP("centura.bmp");
+   texture[9] = LoadTexBMP("tenav.bmp");
+   texture[10] = LoadTexBMP("tsarvia.bmp");
+   texture[11] = LoadTexBMP("kolatanevat.bmp");
 
    // Load Maya objects
    //int num_vertices, int num_normals, int num_tex, int num_faces, char *filename
