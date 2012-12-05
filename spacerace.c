@@ -2,6 +2,7 @@
 
 #define MAX_SUN_PARTICLES 100000
 #define MAX_ATM_PARTICLES 500000
+#define MAX_SHIP_PARTICLES 10000
 
 int th = 0;         //  Azimuth of view angle
 int ph = 0;         //  Elevation of view angle
@@ -19,7 +20,7 @@ double asp=1;     //  Aspect ratio
 int projection = 1;     // 0 for ortho, 1 for perspective
 int animation = 1;      // whether or not the sun animates
 
-double dim=15;   //  Size of world
+double dim=10;   //  Size of world
 
 // Just some helpful little constants for perspective
 int ORTHO = 0;
@@ -64,12 +65,15 @@ int voyager_faces[num_faces_voyager][4][3];
 
 // for particle happy fun time
 float sun_slowdown = 2.0f;
+float ship_slowdown = 1.0f;
 float atm_slowdown = 5.0f;
 
 float sun_xspeed = 1.0f;
 float sun_yspeed = 1.0f;
 float atm_xspeed = 1.0f;
 float atm_yspeed = 1.0f;
+float ship_xspeed = 3.0f;
+float ship_yspeed = 1.0f;
 
 unsigned int loop;
 unsigned int col;
@@ -99,6 +103,8 @@ typedef struct {
 
 // big happy fun time pile of particles
 particles sun_particle[MAX_SUN_PARTICLES];
+particles ship_particle[MAX_SHIP_PARTICLES];
+
 particles znorl_particle[MAX_ATM_PARTICLES];
 
 static void projectify()
@@ -464,7 +470,7 @@ static void cube(double x,double y,double z,
 }
 
 
-static void init_particles(particles particle[], int max, float slowdown, float xspeed, float yspeed, float red, float green, float blue, float life) {
+static void init_particles(particles particle[], int max, float slowdown, float xspeed, float yspeed, float red, float green, float blue, float life, float xgrav) {
       // initialize the particle
    for (loop=0; loop < max; loop++) {
       particle[loop].active=1;
@@ -480,9 +486,9 @@ static void init_particles(particles particle[], int max, float slowdown, float 
       // particle[loop].yi = yspeed + (float)((rand()%60)-32.0f);
       // particle[loop].zi = (float)((rand()%60)-32.0f);
 
-      particle[loop].xg=0.0f;                     // Set Horizontal Pull To Zero
-      particle[loop].yg=0.0f;                    // Set Vertical Pull Downward
-      particle[loop].zg=0.0f;                     // Set Pull On Z Axis To Zero
+      particle[loop].xg= 0;                     // Set Horizontal Pull To Zero
+      particle[loop].yg= 0;                    // Set Vertical Pull Downward
+      particle[loop].zg= xgrav;                     // Set Pull On Z Axis To Zero
       
       particle[loop].life = life;
       particle[loop].fade = (float)(rand()%100)/1000.0f+0.003f;
@@ -873,6 +879,7 @@ void display() {
    draw_particles(sun_particle, MAX_SUN_PARTICLES, sun_slowdown, sun_xspeed, sun_yspeed, movex/2, movey/2, movez/2, 1, 1, 0, 1.0, 2);
 
    glPopMatrix();
+   draw_particles(ship_particle, MAX_SHIP_PARTICLES, ship_slowdown, ship_xspeed, ship_yspeed, 0, 0, 0, 1, 1, 1, 1.0, 2);
    // draw_particles(znorl_particle, MAX_ATM_PARTICLES, atm_slowdown, atm_xspeed, atm_yspeed, movex+5, movey+5, movez, 0.5, 0.5, 1, 0.8, 2);
 
    //  Render the scene
@@ -922,8 +929,9 @@ int main(int argc,char* argv[])
    // double *vertices, double *normals, double *texs, int *faces
    load_obj(num_vertices_voyager, num_normals_voyager, num_tex_voyager, num_faces_voyager, "voyagereng.obj", voyager_vertices, voyager_normals, voyager_texs, voyager_faces);
 
-   init_particles(sun_particle, MAX_SUN_PARTICLES, 0.01, 10, 10, 1, 1, 0, 1.0);
-   init_particles(znorl_particle, MAX_ATM_PARTICLES, 0.01, 10, 10, 1, 1, 1, 1.0);
+   init_particles(sun_particle, MAX_SUN_PARTICLES, 0.01, 10, 10, 1, 1, 0, 1.0, 0);
+   init_particles(ship_particle, MAX_SHIP_PARTICLES, 0.01, 10, 10, 1, 1, 0, 1.0, 10);
+   init_particles(znorl_particle, MAX_ATM_PARTICLES, 0.01, 10, 10, 1, 1, 1, 1.0, 0);
    //  Pass control to GLUT so it can interact with the user
    glutMainLoop();
    return 0;
