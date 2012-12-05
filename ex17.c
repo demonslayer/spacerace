@@ -27,7 +27,7 @@ int light=0;   //  Lighting
 int trans=1;   //  Transparency
 double asp=1;  //  Aspect ratio
 double day=0;  //  Day
-double dim=5;  //  Size of world
+double dim=10;  //  Size of world
 
 #define TWOPI (2*M_PI)
 
