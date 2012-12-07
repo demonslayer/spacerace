@@ -49,7 +49,7 @@ float shinyvec[1];    // Shininess (value)
 int zh        =  90;  // Light azimuth
 float ylight  =   0;  // Elevation of light
 int mode=0;       //  Texture mode
-unsigned int texture[12]; // Texture names
+unsigned int texture[13]; // Texture names
 
 // sizes of maya objects
 #define num_vertices_voyager (1090)
@@ -57,11 +57,36 @@ unsigned int texture[12]; // Texture names
 #define num_normals_voyager (1129)
 #define num_faces_voyager (2166)
 
+#define num_vertices_asteroid (382)
+#define num_tex_asteroid (439)
+#define num_normals_asteroid (382)
+#define num_faces_asteroid (760)
+
+#define num_vertices_asteroid2 (764)
+#define num_tex_asteroid2 (878)
+#define num_normals_asteroid2 (764)
+#define num_faces_asteroid2 (1520)
+
 // Arrays for loading Maya objects
 double voyager_vertices[num_vertices_voyager][3];
 double voyager_normals[num_normals_voyager][3];
 double voyager_texs[num_tex_voyager][2];
 int voyager_faces[num_faces_voyager][4][3];
+
+double asteroid_1_vertices[num_vertices_asteroid][3];
+double asteroid_1_normals[num_normals_asteroid][3];
+double asteroid_1_texs[num_tex_asteroid][2];
+int asteroid_1_faces[num_faces_asteroid][4][3];
+
+double asteroid_2_vertices[num_vertices_asteroid][3];
+double asteroid_2_normals[num_normals_asteroid][3];
+double asteroid_2_texs[num_tex_asteroid][2];
+int asteroid_2_faces[num_faces_asteroid][4][3];
+
+double asteroid_3_vertices[num_vertices_asteroid][3];
+double asteroid_3_normals[num_normals_asteroid][3];
+double asteroid_3_texs[num_tex_asteroid][2];
+int asteroid_3_faces[num_faces_asteroid][4][3];
 
 // for particle happy fun time
 float sun_slowdown = 2.0f;
@@ -342,7 +367,7 @@ static void load_obj(int num_vertices, int num_normals, int num_tex, int num_fac
    }
 }
 
-static void draw_obj(int x, int y, int z, int num_faces, double vertices[][3], double normals[][3], double texs[][2], int faces[][4][3]) {
+static void draw_obj(int x, int y, int z, int num_faces, double vertices[][3], double normals[][3], double texs[][2], int faces[][4][3], float scale) {
    float white[] = {1,1,1,1};
    float Emission[]  = {0.0,0.0,0.01*emission,1.0};
    glMaterialfv(GL_FRONT_AND_BACK,GL_SHININESS,shinyvec);
@@ -350,9 +375,10 @@ static void draw_obj(int x, int y, int z, int num_faces, double vertices[][3], d
    glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,Emission);
 
    glPushMatrix();
-   
-   glScaled(0.6, 0.6, 0.6);
+
    glTranslated(x,y,z);
+   
+   glScaled(scale, scale, scale);
    glRotatef(180, 0, 1, 0);
 
    glColor3f(1,1,1);
@@ -657,6 +683,13 @@ void draw_atmosphere(float x, float y, float z, float scale, float r, float g, f
    glEnable(GL_DEPTH_TEST);
 }
 
+// void draw_moon(float x, float y, float z, float r) {
+//    glPushMatrix();
+//    glTranslated(x,y,z);
+//    sphere(x,y,z , r, texture[12]);
+//    glPopMatrix();
+// }
+
 void special(int key,int x,int y) {
    //  Right arrow key - increase angle by 5 degrees
    if (key == GLUT_KEY_RIGHT)
@@ -810,7 +843,7 @@ void display() {
 
    // draw the ship
    //int num_faces, double *vertices, double *normals, double *texs, int *faces
-   draw_obj(0, 0, 0, num_faces_voyager, voyager_vertices, voyager_normals, voyager_texs, voyager_faces);
+   draw_obj(0, 0, 0, num_faces_voyager, voyager_vertices, voyager_normals, voyager_texs, voyager_faces, 0.6);
 
    glPopMatrix();
    glPushMatrix();
@@ -832,13 +865,35 @@ void display() {
    glowy_ball(Ambient, Diffuse, Specular, Position, 6, GL_LIGHT0, 0, NULL, texture[5]);
 
    glColor3f(1, 1, 1);
-   sphere(movex+10,movey,movez+10 , 2, texture[6]);
-   sphere(movex-12,movey,movez+12 , 3, texture[8]);
-   sphere(movex-3,movey,movez+16 , 3, texture[7]);
-   sphere(movex+7,movey,movez-18 , 3, texture[0]);
-   sphere(movex-8,movey,movez-24 , 6, texture[9]);
-   sphere(movex-28,movey,movez , 6, texture[10]);
-   sphere(movex+34,movey,movez + 1 , 6, texture[11]);
+   sphere(movex+10,movey,movez+15 , 2, texture[6]);
+   sphere(movex-12,movey,movez-16 , 3, texture[8]);
+   sphere(movex-3,movey,movez+19 , 3, texture[7]);
+   sphere(movex+7,movey,movez-20 , 3, texture[0]);
+
+   sphere(movex-8,movey,movez-31 , 6, texture[9]);
+   sphere(movex-28,movey,movez + 30, 6, texture[10]);
+   sphere(movex+34,movey,movez + 28 , 6, texture[11]);
+
+   draw_obj(movex + 15, movey+2, movez - 24, num_faces_asteroid, asteroid_1_vertices, asteroid_1_normals, asteroid_1_texs, asteroid_1_faces, 3);
+   draw_obj(movex - 12, movey-2, movez + 22, num_faces_asteroid, asteroid_1_vertices, asteroid_1_normals, asteroid_1_texs, asteroid_1_faces, 5);
+   draw_obj(movex + 22, movey, movez + 28, num_faces_asteroid, asteroid_1_vertices, asteroid_1_normals, asteroid_1_texs, asteroid_1_faces, 3);
+   draw_obj(movex - 6, movey+2, movez - 22, num_faces_asteroid, asteroid_1_vertices, asteroid_1_normals, asteroid_1_texs, asteroid_1_faces, 5);
+   draw_obj(movex - 2, movey-2, movez + 26, num_faces_asteroid, asteroid_1_vertices, asteroid_1_normals, asteroid_1_texs, asteroid_1_faces, 4);
+
+   draw_obj(movex + 18, movey+2, movez + 3, num_faces_asteroid, asteroid_2_vertices, asteroid_2_normals, asteroid_2_texs, asteroid_2_faces, 3);
+   draw_obj(movex - 16, movey-2, movez - 8, num_faces_asteroid, asteroid_2_vertices, asteroid_2_normals, asteroid_2_texs, asteroid_2_faces, 5);
+   draw_obj(movex + 4, movey+2, movez + 15, num_faces_asteroid, asteroid_2_vertices, asteroid_2_normals, asteroid_2_texs, asteroid_2_faces, 3);
+   draw_obj(movex + 18, movey-2, movez - 12, num_faces_asteroid, asteroid_2_vertices, asteroid_2_normals, asteroid_2_texs, asteroid_2_faces, 4);
+
+   draw_obj(movex + 24, movey+2, movez + 15, num_faces_asteroid, asteroid_2_vertices, asteroid_2_normals, asteroid_2_texs, asteroid_2_faces, 3);
+   draw_obj(movex - 8, movey-2, movez - 12, num_faces_asteroid, asteroid_2_vertices, asteroid_2_normals, asteroid_2_texs, asteroid_2_faces, 5);
+   draw_obj(movex + 16, movey+2, movez + 3, num_faces_asteroid, asteroid_2_vertices, asteroid_2_normals, asteroid_2_texs, asteroid_2_faces, 3);
+   draw_obj(movex + 9, movey-2, movez - 8, num_faces_asteroid, asteroid_2_vertices, asteroid_2_normals, asteroid_2_texs, asteroid_2_faces, 4);
+
+   draw_obj(movex - 24, movey-2, movez - 15, num_faces_asteroid, asteroid_2_vertices, asteroid_2_normals, asteroid_2_texs, asteroid_2_faces, 3);
+   draw_obj(movex + 8, movey+2, movez + 12, num_faces_asteroid, asteroid_2_vertices, asteroid_2_normals, asteroid_2_texs, asteroid_2_faces, 5);
+   draw_obj(movex - 16, movey-2, movez - 3, num_faces_asteroid, asteroid_2_vertices, asteroid_2_normals, asteroid_2_texs, asteroid_2_faces, 3);
+   draw_obj(movex - 9, movey+2, movez + 8, num_faces_asteroid, asteroid_2_vertices, asteroid_2_normals, asteroid_2_texs, asteroid_2_faces, 4);
 
    glPopMatrix();
    glPushMatrix();
@@ -862,19 +917,19 @@ void display() {
    glHint(GL_PERSPECTIVE_CORRECTION_HINT,GL_NICEST);           
    glHint(GL_POINT_SMOOTH_HINT,GL_NICEST); 
    glColor4f(1, 1, 1,0.2);
-   sphere(movex-8,movey,movez-24 , 7.5, texture[9]);
-   sphere(movex-28,movey,movez , 7.5, texture[10]);
-   sphere(movex+34,movey,movez + 1 , 7.5, texture[11]);
+   sphere(movex-8,movey,movez-31 , 7.5, texture[9]);
+   sphere(movex-28,movey,movez+30 , 7.5, texture[10]);
+   sphere(movex+34,movey,movez + 28 , 7.5, texture[11]);
    glDisable(GL_BLEND);
    glEnable(GL_DEPTH_TEST);
 
-   draw_atmosphere(movex+10, movey, movez+10, 3, 1, 1, 1);
-   draw_atmosphere(movex-12, movey, movez+12, 4, 1, 0.6, 0.8);
-   draw_atmosphere(movex-3, movey, movez+16, 4, 0.5, 0.5, 1);
-   draw_atmosphere(movex+7, movey, movez-18, 4, 0.5, 0.5, 1);
-   draw_atmosphere(movex-8, movey, movez-24, 9, 1, 1, 0);
-   draw_atmosphere(movex-28, movey, movez, 9, 0.5, 0.5, 0.5);
-   draw_atmosphere(movex+34, movey, movez, 9, 0, 1, 1);
+   draw_atmosphere(movex+10, movey, movez+15, 3, 1, 1, 1);
+   draw_atmosphere(movex-12, movey, movez-16, 4, 1, 0.6, 0.8);
+   draw_atmosphere(movex-3, movey, movez+19, 4, 0.5, 0.5, 1);
+   draw_atmosphere(movex+7, movey, movez-20, 4, 0.5, 0.5, 1);
+   draw_atmosphere(movex-8, movey, movez-31, 9, 1, 1, 0);
+   draw_atmosphere(movex-28, movey, movez+30, 9, 0.5, 0.5, 0.5);
+   draw_atmosphere(movex+34, movey, movez+28, 9, 0, 1, 1);
 
    draw_particles(sun_particle, MAX_SUN_PARTICLES, sun_slowdown, sun_xspeed, sun_yspeed, movex/2, movey/2, movez/2, 1, 1, 0, 1.0, 2);
 
@@ -923,11 +978,16 @@ int main(int argc,char* argv[])
    texture[9] = LoadTexBMP("tenav.bmp");
    texture[10] = LoadTexBMP("tsarvia.bmp");
    texture[11] = LoadTexBMP("kolatanevat.bmp");
+   texture[12] = LoadTexBMP("falarn.bmp");
 
    // Load Maya objects
    //int num_vertices, int num_normals, int num_tex, int num_faces, char *filename
    // double *vertices, double *normals, double *texs, int *faces
    load_obj(num_vertices_voyager, num_normals_voyager, num_tex_voyager, num_faces_voyager, "voyagereng.obj", voyager_vertices, voyager_normals, voyager_texs, voyager_faces);
+   load_obj(num_vertices_asteroid, num_normals_asteroid, num_tex_asteroid, num_faces_asteroid, "asteroid1.obj", asteroid_1_vertices, asteroid_1_normals, asteroid_1_texs, asteroid_1_faces);
+   load_obj(num_vertices_asteroid, num_normals_asteroid, num_tex_asteroid, num_faces_asteroid, "asteroid2.obj", asteroid_2_vertices, asteroid_2_normals, asteroid_2_texs, asteroid_2_faces);
+   load_obj(num_vertices_asteroid, num_normals_asteroid, num_tex_asteroid, num_faces_asteroid, "asteroid3.obj", asteroid_3_vertices, asteroid_3_normals, asteroid_3_texs, asteroid_3_faces);
+
 
    init_particles(sun_particle, MAX_SUN_PARTICLES, 0.01, 10, 10, 1, 1, 0, 1.0, 0);
    init_particles(ship_particle, MAX_SHIP_PARTICLES, 0.01, 10, 10, 1, 1, 0, 1.0, 10);
