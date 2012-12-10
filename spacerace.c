@@ -49,7 +49,7 @@ float shinyvec[1];    // Shininess (value)
 int zh        =  90;  // Light azimuth
 float ylight  =   0;  // Elevation of light
 int mode=0;       //  Texture mode
-unsigned int texture[13]; // Texture names
+unsigned int texture[17]; // Texture names
 
 // sizes of maya objects
 #define num_vertices_voyager (1090)
@@ -62,10 +62,10 @@ unsigned int texture[13]; // Texture names
 #define num_normals_asteroid (382)
 #define num_faces_asteroid (760)
 
-#define num_vertices_asteroid2 (764)
-#define num_tex_asteroid2 (878)
-#define num_normals_asteroid2 (764)
-#define num_faces_asteroid2 (1520)
+#define num_vertices_city (3038)
+#define num_tex_city (4088)
+#define num_normals_city (9464)
+#define num_faces_city (5916)
 
 // Arrays for loading Maya objects
 double voyager_vertices[num_vertices_voyager][3];
@@ -87,6 +87,16 @@ double asteroid_3_vertices[num_vertices_asteroid][3];
 double asteroid_3_normals[num_normals_asteroid][3];
 double asteroid_3_texs[num_tex_asteroid][2];
 int asteroid_3_faces[num_faces_asteroid][4][3];
+
+double asteroid_city_vertices[num_vertices_asteroid][3];
+double asteroid_city_normals[num_normals_asteroid][3];
+double asteroid_city_texs[num_tex_asteroid][2];
+int asteroid_city_faces[num_faces_asteroid][4][3];
+
+double city_vertices[num_vertices_city][3];
+double city_normals[num_normals_city][3];
+double city_texs[num_tex_city][2];
+int city_faces[num_faces_city][4][3];
 
 // for particle happy fun time
 float sun_slowdown = 2.0f;
@@ -895,9 +905,12 @@ void display() {
    draw_obj(movex - 16, movey-2, movez - 3, num_faces_asteroid, asteroid_2_vertices, asteroid_2_normals, asteroid_2_texs, asteroid_2_faces, 3);
    draw_obj(movex - 9, movey+2, movez + 8, num_faces_asteroid, asteroid_2_vertices, asteroid_2_normals, asteroid_2_texs, asteroid_2_faces, 4);
 
+   draw_obj(movex - 23, movey + 3, movez + 9, num_faces_asteroid, asteroid_city_vertices, asteroid_city_normals, asteroid_city_texs, asteroid_city_faces, 10);
+   draw_obj(movex - 23, movey + 3, movez + 9, num_faces_city, city_vertices, city_normals, city_texs, city_faces, 10);
+
+
    glPopMatrix();
    glPushMatrix();
-
    cube(Ex+xdist, Ey+ydist,  Ez+zdist, 20);
 
    glPopMatrix();
@@ -920,6 +933,7 @@ void display() {
    sphere(movex-8,movey,movez-31 , 7.5, texture[9]);
    sphere(movex-28,movey,movez+30 , 7.5, texture[10]);
    sphere(movex+34,movey,movez + 28 , 7.5, texture[11]);
+   sphere(movex - 23, movey + 4.5, movez + 9, 2.2, 0);
    glDisable(GL_BLEND);
    glEnable(GL_DEPTH_TEST);
 
@@ -979,6 +993,10 @@ int main(int argc,char* argv[])
    texture[10] = LoadTexBMP("tsarvia.bmp");
    texture[11] = LoadTexBMP("kolatanevat.bmp");
    texture[12] = LoadTexBMP("falarn.bmp");
+   texture[13] = LoadTexBMP("grass.bmp");
+   texture[14] = LoadTexBMP("wood.bmp");
+   texture[15] = LoadTexBMP("pine.bmp");
+   texture[16] = LoadTexBMP("water.bmp");
 
    // Load Maya objects
    //int num_vertices, int num_normals, int num_tex, int num_faces, char *filename
@@ -987,6 +1005,10 @@ int main(int argc,char* argv[])
    load_obj(num_vertices_asteroid, num_normals_asteroid, num_tex_asteroid, num_faces_asteroid, "asteroid1.obj", asteroid_1_vertices, asteroid_1_normals, asteroid_1_texs, asteroid_1_faces);
    load_obj(num_vertices_asteroid, num_normals_asteroid, num_tex_asteroid, num_faces_asteroid, "asteroid2.obj", asteroid_2_vertices, asteroid_2_normals, asteroid_2_texs, asteroid_2_faces);
    load_obj(num_vertices_asteroid, num_normals_asteroid, num_tex_asteroid, num_faces_asteroid, "asteroid3.obj", asteroid_3_vertices, asteroid_3_normals, asteroid_3_texs, asteroid_3_faces);
+   load_obj(num_vertices_asteroid, num_normals_asteroid, num_tex_asteroid, num_faces_asteroid, "asteroid_city.obj", asteroid_city_vertices, asteroid_city_normals, asteroid_city_texs, asteroid_city_faces);
+   load_obj(num_vertices_city, num_normals_city, num_tex_city, num_faces_city, "city.obj", city_vertices, city_normals, city_texs, city_faces);
+
+
 
 
    init_particles(sun_particle, MAX_SUN_PARTICLES, 0.01, 10, 10, 1, 1, 0, 1.0, 0);
