@@ -4,6 +4,32 @@
 #define MAX_ATM_PARTICLES 500000
 #define MAX_SHIP_PARTICLES 10000
 
+// sizes of maya objects
+#define num_vertices_voyager (1090)
+#define num_tex_voyager (1403)
+#define num_normals_voyager (1129)
+#define num_faces_voyager (2166)
+
+#define num_vertices_asteroid (382)
+#define num_tex_asteroid (439)
+#define num_normals_asteroid (382)
+#define num_faces_asteroid (760)
+
+#define num_vertices_city (3038)
+#define num_tex_city (4088)
+#define num_normals_city (9464)
+#define num_faces_city (5916)
+
+#define num_vertices_renegade (1924)
+#define num_tex_renegade (2188)
+#define num_normals_renegade (2194)
+#define num_faces_renegade (3656)
+
+#define num_vertices_phantom (1469)
+#define num_tex_phantom (1637)
+#define num_normals_phantom (1670)
+#define num_faces_phantom (2804)
+
 int th = 0;         //  Azimuth of view angle
 int ph = 0;         //  Elevation of view angle
 float orbrotate = 0;
@@ -49,23 +75,9 @@ float shinyvec[1];    // Shininess (value)
 int zh        =  90;  // Light azimuth
 float ylight  =   0;  // Elevation of light
 int mode=0;       //  Texture mode
-unsigned int texture[17]; // Texture names
+unsigned int texture[20]; // Texture names
 
-// sizes of maya objects
-#define num_vertices_voyager (1090)
-#define num_tex_voyager (1403)
-#define num_normals_voyager (1129)
-#define num_faces_voyager (2166)
-
-#define num_vertices_asteroid (382)
-#define num_tex_asteroid (439)
-#define num_normals_asteroid (382)
-#define num_faces_asteroid (760)
-
-#define num_vertices_city (3038)
-#define num_tex_city (4088)
-#define num_normals_city (9464)
-#define num_faces_city (5916)
+int ship = 0; // the current ship
 
 // Arrays for loading Maya objects
 double voyager_vertices[num_vertices_voyager][3];
@@ -97,6 +109,16 @@ double city_vertices[num_vertices_city][3];
 double city_normals[num_normals_city][3];
 double city_texs[num_tex_city][2];
 int city_faces[num_faces_city][4][3];
+
+double renegade_vertices[num_vertices_renegade][3];
+double renegade_normals[num_normals_renegade][3];
+double renegade_texs[num_tex_renegade][2];
+int renegade_faces[num_faces_renegade][4][3];
+
+double phantom_vertices[num_vertices_phantom][3];
+double phantom_normals[num_normals_phantom][3];
+double phantom_texs[num_tex_phantom][2];
+int phantom_faces[num_faces_phantom][4][3];
 
 // for particle happy fun time
 float sun_slowdown = 2.0f;
@@ -139,8 +161,6 @@ typedef struct {
 // big happy fun time pile of particles
 particles sun_particle[MAX_SUN_PARTICLES];
 particles ship_particle[MAX_SHIP_PARTICLES];
-
-particles znorl_particle[MAX_ATM_PARTICLES];
 
 static void projectify()
 {
@@ -510,17 +530,6 @@ static void init_particles(particles particle[], int max, float slowdown, float 
       // initialize the particle
    for (loop=0; loop < max; loop++) {
       particle[loop].active=1;
-      // particle[loop].life=life;
-
-      // particle[loop].fade = (float)(rand()%100)/1000.0f+0.003f;
-
-      // particle[loop].r = red;
-      // particle[loop].g = green;
-      // particle[loop].b = blue;
-
-      // particle[loop].xi = xspeed + (float)((rand()%60)-32.0f);
-      // particle[loop].yi = yspeed + (float)((rand()%60)-32.0f);
-      // particle[loop].zi = (float)((rand()%60)-32.0f);
 
       particle[loop].xg= 0;                     // Set Horizontal Pull To Zero
       particle[loop].yg= 0;                    // Set Vertical Pull Downward
@@ -693,13 +702,6 @@ void draw_atmosphere(float x, float y, float z, float scale, float r, float g, f
    glEnable(GL_DEPTH_TEST);
 }
 
-// void draw_moon(float x, float y, float z, float r) {
-//    glPushMatrix();
-//    glTranslated(x,y,z);
-//    sphere(x,y,z , r, texture[12]);
-//    glPopMatrix();
-// }
-
 void special(int key,int x,int y) {
    //  Right arrow key - increase angle by 5 degrees
    if (key == GLUT_KEY_RIGHT)
@@ -748,19 +750,19 @@ void key(unsigned char ch,int x,int y) {
       movex++;
    }
    else if (ch == 's') {
-      movey++;
+      movez--;
    }
    else if (ch == 'd') {
       movex--;
    }
    else if (ch == 'w') {
-      movey--;
+      movez++;
    }
    else if (ch == 'u') {
-      movez--;
+      movey--;
    }
    else if (ch == 'v') {
-      movez++;
+      movey++;
    }
    else if (ch == 'l') {
       // toggle the sun
@@ -777,11 +779,21 @@ void key(unsigned char ch,int x,int y) {
          animation = 0;
       }
    } else if (ch == '+') {
-      if (ydist > 0) {
-         ydist--;
+      if (dim > 5) {
+         dim--;
       }
    } else if (ch == '-') {
-      ydist++;
+      if (dim < 50) {
+         dim++;
+      }
+   } else if (ch == 'm') {
+      if (ship == 0) {
+         ship = 1;
+      } else if (ship == 1) {
+         ship = 2;
+      } else if (ship == 2) {
+         ship = 0;
+      }
    }
 
    //  Keep angles to +/-360 degrees
@@ -853,7 +865,14 @@ void display() {
 
    // draw the ship
    //int num_faces, double *vertices, double *normals, double *texs, int *faces
-   draw_obj(0, 0, 0, num_faces_voyager, voyager_vertices, voyager_normals, voyager_texs, voyager_faces, 0.6);
+
+   if (ship == 0) {
+      draw_obj(0, 0, 0, num_faces_voyager, voyager_vertices, voyager_normals, voyager_texs, voyager_faces, 0.6);
+   } else if (ship == 1) {
+      draw_obj(0, 0, 0, num_faces_renegade, renegade_vertices, renegade_normals, renegade_texs, renegade_faces, 0.6);
+   } else if (ship == 2) {
+      draw_obj(0, 0, 0, num_faces_phantom, phantom_vertices, phantom_normals, phantom_texs, phantom_faces, 0.6);
+   }
 
    glPopMatrix();
    glPushMatrix();
@@ -949,13 +968,11 @@ void display() {
 
    glPopMatrix();
    draw_particles(ship_particle, MAX_SHIP_PARTICLES, ship_slowdown, ship_xspeed, ship_yspeed, 0, 0, 0, 1, 1, 1, 1.0, 2);
-   // draw_particles(znorl_particle, MAX_ATM_PARTICLES, atm_slowdown, atm_xspeed, atm_yspeed, movex+5, movey+5, movez, 0.5, 0.5, 1, 0.8, 2);
 
    //  Render the scene
    glFlush();
    //  Make the rendered scene visible
    glutSwapBuffers();
-   //glDisable(GL_LIGHTING);
 }
 
 int main(int argc,char* argv[])
@@ -997,6 +1014,9 @@ int main(int argc,char* argv[])
    texture[14] = LoadTexBMP("wood.bmp");
    texture[15] = LoadTexBMP("pine.bmp");
    texture[16] = LoadTexBMP("water.bmp");
+   texture[17] = LoadTexBMP("blue.bmp");
+   texture[18] = LoadTexBMP("red.bmp");
+   texture[19] = LoadTexBMP("darkmetal.bmp");
 
    // Load Maya objects
    //int num_vertices, int num_normals, int num_tex, int num_faces, char *filename
@@ -1007,13 +1027,14 @@ int main(int argc,char* argv[])
    load_obj(num_vertices_asteroid, num_normals_asteroid, num_tex_asteroid, num_faces_asteroid, "asteroid3.obj", asteroid_3_vertices, asteroid_3_normals, asteroid_3_texs, asteroid_3_faces);
    load_obj(num_vertices_asteroid, num_normals_asteroid, num_tex_asteroid, num_faces_asteroid, "asteroid_city.obj", asteroid_city_vertices, asteroid_city_normals, asteroid_city_texs, asteroid_city_faces);
    load_obj(num_vertices_city, num_normals_city, num_tex_city, num_faces_city, "city.obj", city_vertices, city_normals, city_texs, city_faces);
+   load_obj(num_vertices_renegade, num_normals_renegade, num_tex_renegade, num_faces_renegade, "renegade.obj", renegade_vertices, renegade_normals, renegade_texs, renegade_faces);
+   load_obj(num_vertices_phantom, num_normals_phantom, num_tex_phantom, num_faces_phantom, "phantom.obj", phantom_vertices, phantom_normals, phantom_texs, phantom_faces);
 
 
 
 
    init_particles(sun_particle, MAX_SUN_PARTICLES, 0.01, 10, 10, 1, 1, 0, 1.0, 0);
-   init_particles(ship_particle, MAX_SHIP_PARTICLES, 0.01, 10, 10, 1, 1, 0, 1.0, 10);
-   init_particles(znorl_particle, MAX_ATM_PARTICLES, 0.01, 10, 10, 1, 1, 1, 1.0, 0);
+   init_particles(ship_particle, MAX_SHIP_PARTICLES, 0.01, 10, 10, 1, 1, 1, 1.0, 10);
    //  Pass control to GLUT so it can interact with the user
    glutMainLoop();
    return 0;

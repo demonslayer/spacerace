@@ -3,7 +3,7 @@ normals = 0
 textures = 0
 faces = 0
 
-with open("asteroid2.obj") as f:
+with open("phantom.obj") as f:
     content = f.readlines()
 
 for item in content:
